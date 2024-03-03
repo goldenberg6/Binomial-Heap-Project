@@ -45,7 +45,7 @@ public class BinomialHeap {
             return;
         }
         System.out.println("Binomial Heap:");
-        System.out.println("Min Key:" + this.min.item.key + " Size:" + this.size());
+        System.out.println("Min Key:" + this.getMinKey() + " Size:" + this.size());
         HeapNode currentRoot = last;
         HeapNode stopNode = last.next; // Stop condition for circular list of roots
         boolean stop = false;
@@ -84,6 +84,7 @@ public class BinomialHeap {
      * Insert (key,info) into the heap and return the newly generated HeapItem.
      */
     public HeapItem insert(int key, String info) {
+        int origSize = this.size();
         // create new node and item
         HeapItem newItem = new HeapItem(key, info);
         BinomialHeap newHeap = new BinomialHeap(newItem);
@@ -95,7 +96,7 @@ public class BinomialHeap {
             this.last = newHeap.last;
         } else {
             meld(newHeap);
-//            this.size++; todo need this?
+            this.size = origSize + 1;
         }
         return newItem;
     }
@@ -104,36 +105,41 @@ public class BinomialHeap {
      * Delete the minimal item
      */
     public void deleteMin() {
+        if (this.empty()) {
+            return;
+        }
+        int origSize = this.size;
         if (this.min.rank == 0) {
             detachFirst();
             return;
         }
-        //find the new min, last, size for the new heap
-        int rank = 0;
+
+        //create new heap of min's children
+        BinomialHeap newHeap = new BinomialHeap();
+        newHeap.size = this.calcSizeByRank(this.min.rank);
         HeapNode newLast = this.min.child;
+        newHeap.last = newLast;
+
+        // find new min from children of min
         HeapNode current = this.min.child.next; //start current at first
         HeapNode minNode = newLast;
-        int minValue = newLast.item.key;
-        //find new min for subtrees of min
         while (current != newLast) {
-            if (current.item.key < minValue) { // i deleted : && current != this.min
-                minValue = current.item.key;
+            if (current.item.key < minNode.item.key) { // i deleted : && current != this.min
                 minNode = current;
             }
             current = current.next;
-            rank++;
         }
-        BinomialHeap newHeap = new BinomialHeap();
-        newHeap.last = newLast;
-        newHeap.size = this.calcSizeByRank(rank);
         newHeap.min = minNode;
 
         detachMinNode();
-        this.size--;
-
         meldAfterDelete(newHeap);
+
+        this.size = origSize - 1;
     }
 
+    /**
+     * Detach the first node in the heap. Used only when deleteMin is called and min node's rank is 0.
+     */
     private void detachFirst() {
         this.size--;
         if (this.size == 1) { // if this is the only node in the heap
@@ -145,6 +151,9 @@ public class BinomialHeap {
         }
     }
 
+    /**
+     * Return node with min key.
+     */
     private HeapNode findNewMin() {
         HeapNode last = this.last;
         HeapNode current = this.last.next;
@@ -158,6 +167,9 @@ public class BinomialHeap {
         return minNode;
     }
 
+    /**
+     * Nullify all class fields
+     */
     private void emptyHeap() {
         this.last = null;
         this.size = 0;
@@ -174,27 +186,30 @@ public class BinomialHeap {
         }
     }
 
+    /**
+     * Delete min node from list of nodes (same concept as deletion in linked list).
+     */
     private void detachMinNode() {
         //if the min node is the only node
         if (this.numTrees() == 1) {
             this.emptyHeap();
-        } else {
-            //get node before min node
-            HeapNode current = this.last;
-            while (current.next != this.min) {
-                current = current.next;
-            }
-
-            //update last if min is last
-            if (this.min == this.last) {
-                this.last = current;
-            }
-            //detach min node (like in regular linked list)
-            current.next = current.next.next;
-            //update min - find new min for original heap
-            this.min = this.findNewMin();
+            return;
+        }
+        //get node before min node
+        HeapNode current = this.last;
+        while (current.next != this.min) {
+            current = current.next;
         }
 
+        //update last if min is last
+        if (this.min == this.last) {
+            this.last = current;
+        }
+
+        //detach min node (like in regular linked list)
+        current.next = current.next.next;
+        //update min - find new min for original heap
+        this.min = this.findNewMin();
     }
 
     public int calcSizeByRank(int rank) {
@@ -233,7 +248,7 @@ public class BinomialHeap {
      * Meld the heap with heap2
      */
     public void meld(BinomialHeap heap2) {
-        this.size += heap2.size; // todo - need this???
+        this.size += heap2.size;
         HeapNode newMin = (this.getMinKey() < heap2.getMinKey()) ? this.min : heap2.min;
         BinomialHeap newHeap = new BinomialHeap();
         HeapNode currentNode1 = this.last.next;
@@ -333,6 +348,9 @@ public class BinomialHeap {
         this.min = newMin;
     }
 
+    /**
+     * Connect end of biggerRankHeap (starting at node) to shorterHeap
+     */
     public void connect(BinomialHeap shorterHeap, HeapNode node, BinomialHeap biggerRankHeap) {
         HeapNode first = shorterHeap.last.next;
         shorterHeap.last.next = node;
@@ -340,7 +358,10 @@ public class BinomialHeap {
         shorterHeap.last.next = first;
     }
 
-    public void appendNode(HeapNode node) {  // append to non-empty heap at end of linked list
+    /**
+     * Append node to a non-empty heap.
+     */
+    public void appendNode(HeapNode node) {
         if (this.last == null) // is empty heap
         {
             BinomialHeap temp = new BinomialHeap(node);
@@ -388,6 +409,9 @@ public class BinomialHeap {
         return counter;
     }
 
+    /**
+     * Link 2 heaps of the same size (as seen in class).
+     */
     public HeapNode link(HeapNode x, HeapNode y) {
         if (y == null) {
             return x;
