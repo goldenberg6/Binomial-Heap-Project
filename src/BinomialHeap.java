@@ -32,13 +32,13 @@ public class BinomialHeap {
         this.last = node;
         this.last.next = this.last;
         this.min = node;
-
     }
 
     public int getMinKey() {
         return this.min.item.key;
     }
 
+    //todo delete print functions submitting
     public void printHeap() {
         if (empty()) {
             System.out.println("Heap is empty");
@@ -88,15 +88,14 @@ public class BinomialHeap {
         HeapItem newItem = new HeapItem(key, info);
         BinomialHeap newHeap = new BinomialHeap(newItem);
 
-        // if heap is empty
-        if (this.size == 0) {
-            //make "this" the new heap
+        if (this.empty()) {
+            //copy new heap to "this"
             this.size = newHeap.size;
             this.min = newHeap.min;
             this.last = newHeap.last;
         } else {
             meld(newHeap);
-//            this.size++; todo return this?
+//            this.size++; todo need this?
         }
         return newItem;
     }
