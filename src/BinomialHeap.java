@@ -273,6 +273,7 @@ public class BinomialHeap {
                     currentNode2 = nextCurrentNode2;
                 } else {
                     if (currentRank1 < currentRank2) {
+                        HeapNode nextCurrentNode1 = currentNode1.next; // BUG FIX
                         handled2 = currentNode2 == heap2.last;
                         if (carry.rank == currentRank1) {
                             carry = link(carry, currentNode1);
@@ -280,8 +281,9 @@ public class BinomialHeap {
                             newHeap.appendNode(carry);
                             notInsertedCarry = false;
                         }
-                        currentNode1 = currentNode1.next;
+                        currentNode1 = nextCurrentNode1;
                     } else {  // rank2 < rank1
+                        HeapNode nextCurrentNode2 = currentNode2.next; // BUG FIX
                         handled2 = currentNode2 == heap2.last;
                         if (carry.rank == currentRank2) {
                             carry = link(carry, currentNode2);
@@ -289,7 +291,7 @@ public class BinomialHeap {
                             newHeap.appendNode(carry);
                             notInsertedCarry = false;
                         }
-                        currentNode2 = currentNode2.next;
+                        currentNode2 = nextCurrentNode2;
                     }
                 }
             } else { // doesnt have not inserted carry
