@@ -141,7 +141,7 @@ public class BinomialHeap {
      * Detach the first node in the heap. Used only when deleteMin is called and min node's rank is 0.
      */
     private void detachFirst() {
-        this.size--;
+        int origSize = this.size;
         if (this.size == 1) { // if this is the only node in the heap
             this.emptyHeap();
         } else {
@@ -149,6 +149,7 @@ public class BinomialHeap {
             this.last.next = secondNode;
             this.min = findNewMin();
         }
+        this.size = origSize - 1;
     }
 
     /**
@@ -248,6 +249,15 @@ public class BinomialHeap {
      * Meld the heap with heap2
      */
     public void meld(BinomialHeap heap2) {
+        if ((this.empty() && heap2.empty()) || heap2.empty()){
+            return;
+        }
+        if(this.empty()){
+            this.size = heap2.size;
+            this.min = heap2.min;
+            this.last = heap2.last;
+            return;
+        }
         this.size += heap2.size;
         HeapNode newMin = (this.getMinKey() < heap2.getMinKey()) ? this.min : heap2.min;
         BinomialHeap newHeap = new BinomialHeap();
