@@ -153,6 +153,9 @@ public class BinomialHeap {
         this.size = origSize - 1;
     }
 
+    /**
+     * For each child of the given node, set it's parent to null
+     */
     private void nullifyParentForChildrenOf(HeapNode node){
         if(node.child == null){
             return;
