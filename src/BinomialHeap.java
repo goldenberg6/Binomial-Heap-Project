@@ -145,11 +145,27 @@ public class BinomialHeap {
         if (this.size == 1) { // if this is the only node in the heap
             this.emptyHeap();
         } else {
+            nullifyParentForChildrenOf(this.min);
             HeapNode secondNode = this.last.next.next;
             this.last.next = secondNode;
             this.min = findNewMin();
         }
         this.size = origSize - 1;
+    }
+
+    private void nullifyParentForChildrenOf(HeapNode node){
+        if(node.child == null){
+            return;
+        }
+        HeapNode lastChild = node.child;
+        lastChild.parent = null;
+        HeapNode current = lastChild.next;
+
+        while (current!=lastChild){
+            current.parent = null;
+            current = current.next;
+        }
+
     }
 
     /**
@@ -196,6 +212,9 @@ public class BinomialHeap {
             this.emptyHeap();
             return;
         }
+
+        nullifyParentForChildrenOf(this.min);
+
         //get node before min node
         HeapNode current = this.last;
         while (current.next != this.min) {
@@ -234,8 +253,36 @@ public class BinomialHeap {
      * Decrease the key of item by diff and fix the heap.
      */
     public void decreaseKey(HeapItem item, int diff) {
-        return; // should be replaced by student code
+        HeapNode node = item.node;
+        HeapNode parent = node.parent;
+        //First check if item is present or not
+
+        //Update the key of the item
+        item.key -= diff;
+
+        // If the node has a parent and nodes key is smaller than its parent's key, do heapify up
+        while (parent != null && node.item.key < parent.item.key) {
+            //Update pointers of the items to the right nodes
+            item.node = parent;
+            parent.item.node = node;
+
+            //Update nodes pointers to the right items
+            node.item = parent.item;
+            parent.item = item;
+
+            //Update node and its parent
+            node = parent;
+            item = node.item;
+            //item = node.item;
+            parent = node.parent;
+        }
+        //Update min if needed
+        if (node.item.key < getMinKey()) {
+            this.min = node;
+        }
+
     }
+
 
     /**
      * Delete the item from the heap.
@@ -249,10 +296,10 @@ public class BinomialHeap {
      * Meld the heap with heap2
      */
     public void meld(BinomialHeap heap2) {
-        if ((this.empty() && heap2.empty()) || heap2.empty()){
+        if ((this.empty() && heap2.empty()) || heap2.empty()) {
             return;
         }
-        if(this.empty()){
+        if (this.empty()) {
             this.size = heap2.size;
             this.min = heap2.min;
             this.last = heap2.last;
