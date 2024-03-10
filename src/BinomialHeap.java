@@ -235,10 +235,20 @@ public class BinomialHeap {
         this.min = this.findNewMin();
     }
 
-    public int calcSizeByRank(int rank) {
+    /**
+     * Calculate size of node based of node's childrens' ranks
+     * Time Complexity: O(logn)
+     */
+    public int calcSizeByRank(HeapNode node) {
         int sum = 0;
-        for (int i = 0; i <= rank; i++) {
-            sum += Math.pow(2, i);
+        if(node == null){
+            return sum;
+        }
+        sum+= node.rank;
+        HeapNode current = node.next;
+        while (current!=node){
+            sum+=current.rank;
+            current=current.next;
         }
         return sum;
     }
