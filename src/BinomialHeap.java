@@ -250,6 +250,7 @@ public class BinomialHeap {
      * pre: 0 < diff < item.key
      * <p>
      * Decrease the key of item by diff and fix the heap.
+     * Time Complexity: O(logn)
      */
     public void decreaseKey(HeapItem item, int diff) {
         HeapNode node = item.node;
@@ -284,6 +285,7 @@ public class BinomialHeap {
 
     /**
      * Delete the item from the heap.
+     * Time Complexity: O(logn)
      */
     public void delete(HeapItem item) {
         int origSize = this.size;
@@ -295,6 +297,7 @@ public class BinomialHeap {
 
     /**
      * Meld the heap with heap2
+     * Time Complexity: O(logn)
      */
     public void meld(BinomialHeap heap2) {
         if ((this.empty() && heap2.empty()) || heap2.empty()) {
@@ -481,6 +484,7 @@ public class BinomialHeap {
 
     /**
      * Link 2 heaps of the same size (as seen in class).
+     * Time Complexity: O(1)
      */
     public HeapNode link(HeapNode x, HeapNode y) {
         if (y == null) {
