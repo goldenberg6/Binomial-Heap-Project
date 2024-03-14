@@ -306,8 +306,10 @@ public class BinomialHeap {
             this.last = heap2.last;
             return;
         }
-        this.size += heap2.size;
-        HeapNode newMin = (this.getMinKey() < heap2.getMinKey()) ? this.min : heap2.min;
+        int origSize = this.size;
+        int size2 = heap2.size;
+        HeapNode last1 = this.last;
+        HeapNode last2 = heap2.last;
         BinomialHeap newHeap = new BinomialHeap();
         HeapNode currentNode1 = this.last.next;
         HeapNode currentNode2 = heap2.last.next;
@@ -331,8 +333,9 @@ public class BinomialHeap {
                     currentNode2 = nextCurrentNode2;
                 } else {
                     if (currentRank1 < currentRank2) {
-                        HeapNode nextCurrentNode1 = currentNode1.next;
-                        handled2 = currentNode2 == heap2.last;
+                        //go to next node if we are not on last node
+                        HeapNode nextCurrentNode1 = (currentNode1 == last1) ? currentNode1 : currentNode1.next; //BUG FIX
+                        handled1 = currentNode1 == this.last;
                         if (carry.rank == currentRank1) {
                             carry = link(carry, currentNode1);
                         } else {
@@ -340,8 +343,9 @@ public class BinomialHeap {
                             notInsertedCarry = false;
                         }
                         currentNode1 = nextCurrentNode1;
-                    } else {  // rank2 < rank1
-                        HeapNode nextCurrentNode2 = currentNode2.next;
+                    } else {  // currentRank2 < currentRank1
+                        //go to next node if we are not on last node
+                        HeapNode nextCurrentNode2 = (currentNode2 == last2) ? currentNode2 :currentNode2.next; //BUG FIX
                         handled2 = currentNode2 == heap2.last;
                         if (carry.rank == currentRank2) {
                             carry = link(carry, currentNode2);
@@ -405,7 +409,8 @@ public class BinomialHeap {
         }
 
         this.last = newHeap.last;
-        this.min = newMin;
+        this.min = this.findNewMin();
+        this.size = origSize+size2;
     }
 
     /**
