@@ -238,6 +238,9 @@ public class BinomialHeap {
      * Time Complexity: O(1)
      */
     public HeapItem findMin() {
+        if (this.min == null) {
+            return null;
+        }
         return this.min.item;
     }
 
