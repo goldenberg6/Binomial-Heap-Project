@@ -40,6 +40,7 @@ public class BinomialHeap {
         this.min = node;
     }
 
+
     /**
      * Return min key in Heap
      * Time Complexity: O(1)
@@ -130,15 +131,15 @@ public class BinomialHeap {
      * For each child of the given node, set it's parent to null
      * Time Complexity: O(logn)
      */
-    private void nullifyParentForChildrenOf(HeapNode node){
-        if(node.child == null){
+    private void nullifyParentForChildrenOf(HeapNode node) {
+        if (node.child == null) {
             return;
         }
         HeapNode lastChild = node.child;
         lastChild.parent = null;
         HeapNode current = lastChild.next;
 
-        while (current!=lastChild){
+        while (current != lastChild) {
             current.parent = null;
             current = current.next;
         }
@@ -221,14 +222,14 @@ public class BinomialHeap {
      */
     public int calcSizeByRank(HeapNode node) {
         int sum = 0;
-        if(node == null){
+        if (node == null) {
             return sum;
         }
-        sum+= node.rank;
+        sum += node.rank;
         HeapNode current = node.next;
-        while (current!=node){
-            sum+=current.rank;
-            current=current.next;
+        while (current != node) {
+            sum += current.rank;
+            current = current.next;
         }
         return sum;
     }
