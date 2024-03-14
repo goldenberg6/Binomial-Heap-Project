@@ -193,6 +193,7 @@ public class BinomialHeap {
     private void detachMinNode() {
         //if the min node is the only node
         if (this.numTrees() == 1) {
+            nullifyParentForChildrenOf(this.min);
             this.emptyHeap();
             return;
         }
@@ -285,8 +286,11 @@ public class BinomialHeap {
      * Delete the item from the heap.
      */
     public void delete(HeapItem item) {
-        decreaseKey(item, Integer.MIN_VALUE);
+        int origSize = this.size;
+        decreaseKey(item, Integer.MAX_VALUE);
         deleteMin();
+
+        this.size = origSize - 1;
     }
 
     /**
