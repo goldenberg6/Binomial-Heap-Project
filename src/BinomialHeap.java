@@ -6,8 +6,6 @@
 
 
 public class BinomialHeap {
-    //todo - size
-    //todo - rank?
     public int size;
     public HeapNode last;
     public HeapNode min;
@@ -18,6 +16,10 @@ public class BinomialHeap {
         this.min = null;
     }
 
+    /**
+     * Constructor - builds a BinomialHeap with one node which points to the given item
+     * Time Complexity - O(1)
+     */
     public BinomialHeap(HeapItem item) {
         HeapNode node = new HeapNode(item);
         item.node = node;
@@ -27,6 +29,10 @@ public class BinomialHeap {
         this.min = node;
     }
 
+    /**
+     * Constructor - builds a BinomialHeap with one node (the given node)
+     * Time Complexity - O(1)
+     */
     public BinomialHeap(HeapNode node) {
         this.size = 1;
         this.last = node;
@@ -34,54 +40,20 @@ public class BinomialHeap {
         this.min = node;
     }
 
+
+    /**
+     * Return min key in Heap
+     * Time Complexity: O(1)
+     */
     public int getMinKey() {
         return this.min.item.key;
-    }
-
-    //todo delete print functions submitting
-    public void printHeap() {
-        if (empty()) {
-            System.out.println("Heap is empty");
-            return;
-        }
-        System.out.println("Binomial Heap:");
-        System.out.println("Min Key:" + this.getMinKey() + " Size:" + this.size());
-        HeapNode currentRoot = last;
-        HeapNode stopNode = last.next; // Stop condition for circular list of roots
-        boolean stop = false;
-
-        do {
-            System.out.println("Root: " + currentRoot.item.key);
-            printTree(currentRoot, 0, currentRoot); // Print the tree rooted at current root
-            currentRoot = currentRoot.next;
-            if (currentRoot == stopNode) {
-                stop = true; // We've visited all roots
-            }
-        } while (!stop);
-    }
-
-    private void printTree(HeapNode node, int depth, HeapNode initialRoot) {
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < depth; i++) {
-            sb.append("  "); // Adjust spacing for depth
-        }
-        sb.append(node.item.key).append(" [").append(node.rank).append("]");
-
-        System.out.println(sb.toString());
-
-        if (node.child != null) {
-            printTree(node.child, depth + 1, node.child); // Print child recursively
-        }
-
-        if (node.next != node.parent && node.next != null && node.next != initialRoot) {
-            printTree(node.next, depth, initialRoot); // Print sibling recursively until we reach the initial root
-        }
     }
 
     /**
      * pre: key > 0
      * <p>
      * Insert (key,info) into the heap and return the newly generated HeapItem.
+     * Time Complexity: O(logn)
      */
     public HeapItem insert(int key, String info) {
         int origSize = this.size();
@@ -103,6 +75,7 @@ public class BinomialHeap {
 
     /**
      * Delete the minimal item
+     * Time Complexity: O(logn)
      */
     public void deleteMin() {
         if (this.empty()) {
@@ -116,7 +89,7 @@ public class BinomialHeap {
 
         //create new heap of min's children
         BinomialHeap newHeap = new BinomialHeap();
-        newHeap.size = this.calcSizeByRank(this.min.rank);
+        newHeap.size = this.calcSizeByRank(this.min);
         HeapNode newLast = this.min.child;
         newHeap.last = newLast;
 
@@ -124,7 +97,7 @@ public class BinomialHeap {
         HeapNode current = this.min.child.next; //start current at first
         HeapNode minNode = newLast;
         while (current != newLast) {
-            if (current.item.key < minNode.item.key) { // i deleted : && current != this.min
+            if (current.item.key < minNode.item.key) {
                 minNode = current;
             }
             current = current.next;
@@ -139,6 +112,7 @@ public class BinomialHeap {
 
     /**
      * Detach the first node in the heap. Used only when deleteMin is called and min node's rank is 0.
+     * Time Complexity: O(1)
      */
     private void detachFirst() {
         int origSize = this.size;
@@ -155,24 +129,25 @@ public class BinomialHeap {
 
     /**
      * For each child of the given node, set it's parent to null
+     * Time Complexity: O(logn)
      */
-    private void nullifyParentForChildrenOf(HeapNode node){
-        if(node.child == null){
+    private void nullifyParentForChildrenOf(HeapNode node) {
+        if (node.child == null) {
             return;
         }
         HeapNode lastChild = node.child;
         lastChild.parent = null;
         HeapNode current = lastChild.next;
 
-        while (current!=lastChild){
+        while (current != lastChild) {
             current.parent = null;
             current = current.next;
         }
-
     }
 
     /**
      * Return node with min key.
+     * Time Complexity: O(logn)
      */
     private HeapNode findNewMin() {
         HeapNode last = this.last;
@@ -189,6 +164,7 @@ public class BinomialHeap {
 
     /**
      * Nullify all class fields
+     * Time Complexity: O(1)
      */
     private void emptyHeap() {
         this.last = null;
@@ -196,6 +172,10 @@ public class BinomialHeap {
         this.min = null;
     }
 
+    /**
+     * Handle meld after deleting min.
+     * Time Complexity: O(logn)
+     */
     private void meldAfterDelete(BinomialHeap newHeap) {
         if (this.empty()) {
             this.last = newHeap.last;
@@ -208,10 +188,12 @@ public class BinomialHeap {
 
     /**
      * Delete min node from list of nodes (same concept as deletion in linked list).
+     * Time Complexity: O(logn)
      */
     private void detachMinNode() {
         //if the min node is the only node
         if (this.numTrees() == 1) {
+            nullifyParentForChildrenOf(this.min);
             this.emptyHeap();
             return;
         }
@@ -241,22 +223,26 @@ public class BinomialHeap {
      */
     public int calcSizeByRank(HeapNode node) {
         int sum = 0;
-        if(node == null){
+        if (node == null) {
             return sum;
         }
-        sum+= node.rank;
+        sum += node.rank;
         HeapNode current = node.next;
-        while (current!=node){
-            sum+=current.rank;
-            current=current.next;
+        while (current != node) {
+            sum += current.rank;
+            current = current.next;
         }
         return sum;
     }
 
     /**
      * Return the minimal HeapItem
+     * Time Complexity: O(1)
      */
     public HeapItem findMin() {
+        if (this.min == null) {
+            return null;
+        }
         return this.min.item;
     }
 
@@ -264,6 +250,7 @@ public class BinomialHeap {
      * pre: 0 < diff < item.key
      * <p>
      * Decrease the key of item by diff and fix the heap.
+     * Time Complexity: O(logn)
      */
     public void decreaseKey(HeapItem item, int diff) {
         HeapNode node = item.node;
@@ -286,7 +273,6 @@ public class BinomialHeap {
             //Update node and its parent
             node = parent;
             item = node.item;
-            //item = node.item;
             parent = node.parent;
         }
         //Update min if needed
@@ -299,14 +285,19 @@ public class BinomialHeap {
 
     /**
      * Delete the item from the heap.
+     * Time Complexity: O(logn)
      */
     public void delete(HeapItem item) {
-        decreaseKey(item, Integer.MIN_VALUE);
+        int origSize = this.size;
+        decreaseKey(item, Integer.MAX_VALUE);
         deleteMin();
+
+        this.size = origSize - 1;
     }
 
     /**
      * Meld the heap with heap2
+     * Time Complexity: O(logn)
      */
     public void meld(BinomialHeap heap2) {
         if ((this.empty() && heap2.empty()) || heap2.empty()) {
@@ -318,8 +309,10 @@ public class BinomialHeap {
             this.last = heap2.last;
             return;
         }
-        this.size += heap2.size;
-        HeapNode newMin = (this.getMinKey() < heap2.getMinKey()) ? this.min : heap2.min;
+        int origSize = this.size;
+        int size2 = heap2.size;
+        HeapNode last1 = this.last;
+        HeapNode last2 = heap2.last;
         BinomialHeap newHeap = new BinomialHeap();
         HeapNode currentNode1 = this.last.next;
         HeapNode currentNode2 = heap2.last.next;
@@ -336,15 +329,16 @@ public class BinomialHeap {
                     handled1 = currentNode1 == this.last;
                     handled2 = currentNode2 == heap2.last;
                     newHeap.appendNode(carry);
-                    HeapNode nextCurrentNode1 = currentNode1.next; //BUG FIX - save the next current before link ruins them
+                    HeapNode nextCurrentNode1 = currentNode1.next;
                     HeapNode nextCurrentNode2 = currentNode2.next;
                     carry = link(currentNode1, currentNode2);
                     currentNode1 = nextCurrentNode1;
                     currentNode2 = nextCurrentNode2;
                 } else {
                     if (currentRank1 < currentRank2) {
-                        HeapNode nextCurrentNode1 = currentNode1.next; // BUG FIX
-                        handled2 = currentNode2 == heap2.last;
+                        //go to next node if we are not on last node
+                        HeapNode nextCurrentNode1 = (currentNode1 == last1) ? currentNode1 : currentNode1.next; //BUG FIX
+                        handled1 = currentNode1 == this.last;
                         if (carry.rank == currentRank1) {
                             carry = link(carry, currentNode1);
                         } else {
@@ -352,8 +346,9 @@ public class BinomialHeap {
                             notInsertedCarry = false;
                         }
                         currentNode1 = nextCurrentNode1;
-                    } else {  // rank2 < rank1
-                        HeapNode nextCurrentNode2 = currentNode2.next; // BUG FIX
+                    } else {  // currentRank2 < currentRank1
+                        //go to next node if we are not on last node
+                        HeapNode nextCurrentNode2 = (currentNode2 == last2) ? currentNode2 :currentNode2.next; //BUG FIX
                         handled2 = currentNode2 == heap2.last;
                         if (carry.rank == currentRank2) {
                             carry = link(carry, currentNode2);
@@ -364,11 +359,11 @@ public class BinomialHeap {
                         currentNode2 = nextCurrentNode2;
                     }
                 }
-            } else { // doesnt have not inserted carry
+            } else { // doesn't have not inserted carry
                 if (currentRank1 == currentRank2) {
                     handled1 = currentNode1 == this.last;
                     handled2 = currentNode2 == heap2.last;
-                    HeapNode nextCurrentNode1 = currentNode1.next;  //BUG FIX - save the next current before link ruins them
+                    HeapNode nextCurrentNode1 = currentNode1.next;
                     HeapNode nextCurrentNode2 = currentNode2.next;
                     carry = link(currentNode1, currentNode2);
                     currentNode1 = nextCurrentNode1;
@@ -403,7 +398,7 @@ public class BinomialHeap {
                     newHeap.appendNode(carry);
                 }
             } else {
-                while (!handledLonger && carry.rank == longerNode.rank) { //longerNode != longerHeap.last
+                while (!handledLonger && carry.rank == longerNode.rank) {
                     handledLonger = longerNode == longerHeap.last;
                     HeapNode nextLongerNode = longerNode.next;
                     carry = link(carry, longerNode);
@@ -412,16 +407,18 @@ public class BinomialHeap {
                 newHeap.appendNode(carry);
             }
         }
-        if (newHeap.last.rank < longerNode.rank && !doNotConnect) {  //currentNode1.rank != currentNode2.rank - changed this because once carry was created, node1/node2 changed and the actual rank grew
+        if (newHeap.last.rank < longerNode.rank && !doNotConnect) {
             connect(newHeap, longerNode, longerHeap);
         }
 
         this.last = newHeap.last;
-        this.min = newMin;
+        this.min = this.findNewMin();
+        this.size = origSize+size2;
     }
 
     /**
      * Connect end of biggerRankHeap (starting at node) to shorterHeap
+     * Time Complexity: O(1)
      */
     public void connect(BinomialHeap shorterHeap, HeapNode node, BinomialHeap biggerRankHeap) {
         HeapNode first = shorterHeap.last.next;
@@ -432,6 +429,7 @@ public class BinomialHeap {
 
     /**
      * Append node to a non-empty heap.
+     * Time Complexity: O(1)
      */
     public void appendNode(HeapNode node) {
         if (this.last == null) // is empty heap
@@ -452,6 +450,7 @@ public class BinomialHeap {
 
     /**
      * Return the number of elements in the heap
+     * Time Complexity: O(1)
      */
     public int size() {
         return this.size;
@@ -460,6 +459,7 @@ public class BinomialHeap {
     /**
      * The method returns true if and only if the heap
      * is empty.
+     * Time Complexity: O(1)
      */
     public boolean empty() {
         return this.last == null;
@@ -467,6 +467,7 @@ public class BinomialHeap {
 
     /**
      * Return the number of trees in the heap.
+     * Time Complexity: O(logn)
      */
     public int numTrees() {
         if (this.empty()) {
@@ -483,11 +484,13 @@ public class BinomialHeap {
 
     /**
      * Link 2 heaps of the same size (as seen in class).
+     * Time Complexity: O(1)
      */
     public HeapNode link(HeapNode x, HeapNode y) {
         if (y == null) {
             return x;
         }
+
         // make sure x < y
         if (x.item.key > y.item.key) {
             HeapNode temp = x;
